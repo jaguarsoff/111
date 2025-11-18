@@ -274,4 +274,121 @@ async def confirm_order(cq: CallbackQuery):
     oid = db.create_order_from_cart(
         cq.from_user.id,
         r["total"],
-        user["phone]()
+        user["phone"],
+        datetime.utcnow().isoformat()
+    )
+
+    # ---- УВЕДОМЛЯЕМ АДМИНА ----
+
+    admin_msg = (
+        f"🔔 <b>Новый заказ!</b>\n\n"
+        f"№ <b>{oid}</b>\n"
+        f"Пользователь: {cq.from_user.id}\n"
+        f"Сумма: {r['total']} руб\n"
+        f"Телефон: {user['phone']}"
+    )
+
+    await bot.send_message(ADMIN_ID, admin_msg)
+
+    await cq.message.edit_text(
+        f"🎉 <b>Заказ №{oid} оформлен!</b>\n"
+        f"Админ скоро свяжется с вами для оплаты."
+    )
+    await cq.answer()
+
+
+# -------------------- CONTACT SAVE --------------------
+
+@dp.message(ContactState.phone)
+async def save_contact(msg: Message, state: FSMContext):
+    phone = msg.text.strip()
+    db.save_user_contact(msg.from_user.id, msg.from_user.username or "", phone)
+
+    await state.clear()
+
+    await msg.reply(
+        "📱 Контакт сохранён!\n"
+        "Теперь вы можете снова выполнить <b>/checkout</b>."
+    )
+
+
+# -------------------- ADMIN PANEL --------------------
+
+@dp.callback_query(F.data == "admin")
+async def admin_panel(cq: CallbackQuery):
+    if cq.from_user.id != ADMIN_ID:
+        return await cq.answer("Нет доступа", show_alert=True)
+
+    await cq.message.edit_text(
+        "<b>🔧 Админ-панель</b>\n\n"
+        "Доступные команды:\n"
+        "• <b>/orders</b> — показать все заказы\n"
+        "• <b>/setstatus &lt;id&gt; &lt;status&gt;</b> — изменить статус заказа",
+        reply_markup=keyboards.main_kb(True)
+    )
+
+    await cq.answer()
+
+
+@dp.message(Command("orders"))
+async def admin_orders(msg: Message):
+    if msg.from_user.id != ADMIN_ID:
+        return await msg.reply("Нет доступа.")
+
+    orders = db.list_orders()
+
+    if not orders:
+        return await msg.reply("Заказов нет.")
+
+    text = "<b>Список заказов:</b>\n\n"
+
+    for o in orders:
+        text += (
+            f"№{o['id']} — <b>{o['status']}</b>\n"
+            f"{o['total_rub']} руб\n"
+            f"{o['created_at']}\n"
+            "————————————\n"
+        )
+
+    await msg.reply(text)
+
+
+# -------------------- SET ORDER STATUS --------------------
+
+@dp.message()
+async def admin_setstatus(msg: Message):
+    if msg.from_user.id != ADMIN_ID:
+        return
+
+    if not msg.text.startswith("/setstatus"):
+        return
+
+    p = msg.text.split(maxsplit=2)
+
+    if len(p) < 3:
+        return await msg.reply("Использование: /setstatus <id> <status>")
+
+    oid = int(p[1])
+    status = p[2]
+
+    db.set_order_status(oid, status)
+    order = db.get_order(oid)
+
+    await bot.send_message(
+        order["user_id"],
+        f"🔄 Статус вашего заказа №{oid} обновлён:\n<b>{status}</b>"
+    )
+
+    await msg.reply("Статус обновлён.")
+
+
+# -------------------- RUN BOT --------------------
+
+async def main():
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
