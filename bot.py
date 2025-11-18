@@ -244,16 +244,15 @@ async def confirm_order(cq: CallbackQuery):
 
     await bot.send_message(
         ADMIN_ID,
-        f"🔔 Новый заказ!
-
-<b>№{oid}</b>"
+        f"🔔 Новый заказ!"
+        f"<b>№{oid}</b>"
         f"Пользователь: {cq.from_user.id}"
         f"Сумма: {r['total']} руб"
     )
 
     await cq.message.edit_text(
-        f"🎉 <b>Заказ №{oid} оформлен!</b>
-Админ скоро свяжется с вами для оплаты."
+        f"🎉 <b>Заказ №{oid} оформлен!</b>"
+        f"Админ скоро свяжется с вами для оплаты."
     )
     await cq.answer()
 
@@ -265,8 +264,8 @@ async def save_contact(msg: Message, state: FSMContext):
     db.save_user_contact(msg.from_user.id, msg.from_user.username or "", phone)
     await state.clear()
     await msg.reply(
-        "📱 Контакт сохранён!
-Теперь можете снова выполнить /checkout"
+        "📱 Контакт сохранён!"
+        "Теперь можете снова выполнить /checkout"
     )
 
 # ---- ADMIN ----
@@ -294,19 +293,13 @@ async def admin_orders(msg: Message):
     if not orders:
         return await msg.reply("Заказов нет.")
 
-    text = "<b>Список заказов:</b>
-
-"
+    text = "<b>Список заказов:</b>"
     for o in orders:
         text += (
-            f"№{o['id']} — {o['status']}
-"
-            f"{o['total_rub']} руб
-"
-            f"{o['created_at']}
-"
-            "————————————
-"
+            f"№{o['id']} — {o['status']}"
+            f"{o['total_rub']} руб"
+            f"{o['created_at']}"
+            "————————————"
         )
     await msg.reply(text)
 
@@ -330,8 +323,7 @@ async def admin_setstatus(msg: Message):
 
     await bot.send_message(
         order["user_id"],
-        f"🔄 Статус вашего заказа №{oid} обновлён:
-<b>{status}</b>"
+        f"🔄 Статус вашего заказа №{oid} обновлён: <b>{status}</b>"
     )
     await msg.reply("Статус обновлён.")
 
