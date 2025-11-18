@@ -29,9 +29,7 @@ class ContactState(StatesGroup):
 async def cmd_start(msg: Message):
     db.init_db()
     await msg.answer(
-        "<b>Добро пожаловать 👋</b>
-
-"
+        "<b>Добро пожаловать 👋</b>"
         "Я помогу заказать товары из Poizon максимально удобно.
 "
         "Выберите действие в меню ниже:",
@@ -43,9 +41,7 @@ async def cmd_start(msg: Message):
 @dp.callback_query(F.data == "help")
 async def cb_help(cq: CallbackQuery):
     await cq.message.edit_text(
-        "<b>📝 Помощь</b>
-
-"
+        "<b>📝 Помощь</b>"
         "• Добавьте товары в корзину через «Каталог».
 "
         "• Проверьте содержимое корзины.
@@ -189,7 +185,6 @@ async def cb_calc(cq: CallbackQuery):
     r = utils.calc_order(items)
     text = (
         "<b>💰 Расчёт стоимости:</b>
-
 "
         f"📦 Вес: <b>{r['total_weight']} кг</b>
 "
@@ -222,7 +217,6 @@ async def cb_my_orders(cq: CallbackQuery):
         )
 
     text = "<b>📦 Мои заказы:</b>
-
 "
     for o in user_orders:
         text += (
@@ -260,17 +254,14 @@ async def cmd_checkout(msg: Message, state: FSMContext):
     r = utils.calc_order(items)
     text = (
         "<b>Подтвердите оформление заказа:</b>
-
 "
         f"📦 Вес: {r['total_weight']} кг
 "
         f"🛒 Товары: {r['items_cost']} руб
 "
         f"🚚 Доставка: {r['shipping']} руб
-
 "
         f"💵 <b>Итого: {r['total']} руб</b>
-
 "
     )
     await msg.answer(text + "Нажмите кнопку ниже:", reply_markup=keyboards.confirm_order_kb())
