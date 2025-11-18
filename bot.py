@@ -128,21 +128,14 @@ async def cb_cart(cq: CallbackQuery):
             reply_markup=keyboards.main_kb(cq.from_user.id == ADMIN_ID)
         )
 
-    text = "<b>🧺 Ваша корзина:</b>
-
-"
+    text = "<b>🧺 Ваша корзина:</b>"
     for it in items:
         text += (
-            f"<b>ID {it['id']}:</b> {it['title']}
-"
-            f"Цена: {it['price_cny']} CNY × {it['qty']}
-"
-            f"Вес: {it['weight_kg']} кг
-"
-            f"Категория: {it['category']}
-"
-            "——————————————
-"
+            f"<b>ID {it['id']}:</b> {it['title']}"
+            f"Цена: {it['price_cny']} CNY × {it['qty']}"
+            f"Вес: {it['weight_kg']} кг"
+            f"Категория: {it['category']}"
+            "——————————————"
         )
     text += "Чтобы оформить заказ — используйте команду /checkout"
 
