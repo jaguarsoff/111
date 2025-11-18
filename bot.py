@@ -192,18 +192,13 @@ async def cb_my_orders(cq: CallbackQuery):
             reply_markup=keyboards.main_kb(cq.from_user.id == ADMIN_ID)
         )
 
-    text = "<b>📦 Мои заказы:</b>
-"
+    text = "<b>📦 Мои заказы:</b>"
     for o in user_orders:
         text += (
-            f"№{o['id']} • {o['status']}
-"
-            f"Сумма: {o['total_rub']} руб
-"
-            f"{o['created_at']}
-"
-            "————————————
-"
+            f"№{o['id']} • {o['status']}"
+            f"Сумма: {o['total_rub']} руб"
+            f"{o['created_at']}"
+            "————————————"
         )
     await cq.message.edit_text(
         text,
@@ -251,12 +246,9 @@ async def confirm_order(cq: CallbackQuery):
         ADMIN_ID,
         f"🔔 Новый заказ!
 
-<b>№{oid}</b>
-"
-        f"Пользователь: {cq.from_user.id}
-"
-        f"Сумма: {r['total']} руб
-"
+<b>№{oid}</b>"
+        f"Пользователь: {cq.from_user.id}"
+        f"Сумма: {r['total']} руб"
     )
 
     await cq.message.edit_text(
